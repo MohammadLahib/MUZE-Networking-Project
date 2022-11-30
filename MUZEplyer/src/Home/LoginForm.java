@@ -342,9 +342,11 @@ public class LoginForm extends javax.swing.JFrame {
                 pst.setString(1, uname);
                 pst.setString(2, pword);
                 rs = pst.executeQuery();
+
                 
                 if(rs.next()){
-                    ClientUI client = new ClientUI();
+                    String un = rs.getString("username");
+                    ClientUI client = new ClientUI(uname);
                     client.setVisible(true);
                     setVisible(false);
                 }

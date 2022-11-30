@@ -4,6 +4,7 @@ package Home;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,19 +13,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+
+import static Home.Server.createFrame;
 
 public class ClientUI extends javax.swing.JFrame {
 
-    public ClientUI() {
-        initComponents();
+    public ClientUI() throws SQLException {
+        initComponents("");
     }
-    public ClientUI(String uname) {
-        initComponents();
-        jLabel1.setText(uname);
+    public ClientUI(String uname) throws SQLException {
+        initComponents(uname);
     }
 
     static ArrayList<MyFile> myFiles = new ArrayList<>();
@@ -32,10 +32,14 @@ public class ClientUI extends javax.swing.JFrame {
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents(String uname) throws SQLException {
+
 
 
         final File[] fileToSend = new File[1];
+
+        Connection con1;
+        PreparedStatement pst;
 
         JFrame jFrame = new JFrame("MUZE Client PLATFORM");
         jFrame.setSize(750, 750);
@@ -54,6 +58,8 @@ public class ClientUI extends javax.swing.JFrame {
         jlFileName.setFont(new Font("Arial", Font.BOLD, 20));
         jlFileName.setBorder(new EmptyBorder(50, 0 , 0, 0));
         jlFileName.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        System.out.println("name is " + uname);
 
         JPanel jpButton =  new JPanel();
         jpButton.setBorder(new EmptyBorder(75, 0, 10, 0));
@@ -80,27 +86,58 @@ public class ClientUI extends javax.swing.JFrame {
         JPanel j2 = new JPanel();
         j2.setBounds(70, 150, 500, 200);
         j2.setPreferredSize(new Dimension(100,200));
-        j2.setBackground(Color.white);
+        j2.setBackground(Color.cyan);
         j2.setBorder(BorderFactory.createSoftBevelBorder(0));
 
         JScrollPane jScrollPane = new JScrollPane(j2);
+
         jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 
         JLabel txtChoose = new JLabel("Click on the File you Want to Download or to Stream");
         txtChoose.setPreferredSize(new Dimension(520,50));
         txtChoose.setFont(new Font("Arial", Font.BOLD, 20));
-        txtChoose.setForeground(Color.BLUE);
+        txtChoose.setForeground(Color.black);
         txtChoose.setBorder(BorderFactory.createSoftBevelBorder(1));
         txtChoose.setAlignmentX(Component.CENTER_ALIGNMENT);
         j2.add(txtChoose);
+
+        con1 = DbConnect.getConnection();
+
+
+        Statement st = con1.createStatement();
+
+        String sql = "select * from audio";
+
+        ResultSet rs = st.executeQuery(sql);
+
+        while (rs.next()){
+            String fileName = rs.getString("fileName");
+            String filePath = rs.getString("filePath");
+
+            byte[] fileNameByte = fileName.getBytes();
+            String name = rs.getString("name");
+            JLabel jname = new JLabel(name);
+
+            String tbData[] = {fileName, filePath, name};
+
+
+            JLabel FileName =  new JLabel(fileName);
+            FileName.setFont(new Font("Arial", Font.BOLD, 20));
+            FileName.setBorder(new EmptyBorder(50, 0, 0, 0));
+
+            FileName.setAlignmentX(Component.CENTER_ALIGNMENT);
+            j2.add(FileName);
+            j2.add(jname);
+
+        }
+
+
 
 
 
         jFrame.add(jScrollPane);
         jFrame.setVisible(true);
-
-
 
 
 
@@ -128,35 +165,40 @@ public class ClientUI extends javax.swing.JFrame {
                     jlFileName.setText("please choose a file");
                 } else{
                     try {
+
                         FileInputStream fileInputStream = new FileInputStream(fileToSend[0].getAbsolutePath());
                         Socket socket = new Socket("localhost", 5000);
 
                         DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-                        String fileName = fileToSend[0].getName();
-                        String filePath = fileToSend[0].getPath();
-                        byte[] fileNameByte = fileName.getBytes();
-                        con = DbConnect.getConnection();
-                        pst1 = con.prepareStatement("insert into audio(fileName, filePath) values(?,?)");
-                        pst1.setString(1, fileName);
-                        pst1.setString(2, filePath);
-                        pst1.execute();
 
                         byte[] fileContentBytes = new byte[(int) fileToSend[0].length()];
                         fileInputStream.read(fileContentBytes);
+                        String fileName = fileToSend[0].getName();
+                        String filePath = fileToSend[0].getPath();
+                        byte[] fileNameByte = fileName.getBytes();
+
 
                         dataOutputStream.writeInt(fileNameByte.length);
                         dataOutputStream.write(fileNameByte);
 
-                        dataOutputStream.writeInt(fileContentBytes.length);
-                        dataOutputStream.write(fileContentBytes);
-
+                        con = DbConnect.getConnection();
+                        pst1 = con.prepareStatement("insert into audio(fileName, filePath, name) values(?,?,?)");
+                        pst1.setString(1, fileName);
+                        pst1.setString(2, filePath);
+                        pst1.setString(3, uname);
+                        pst1.executeUpdate();
                         pst1.close();
                         con.close();
 
+                        dataOutputStream.writeInt(fileContentBytes.length);
+                        dataOutputStream.write(fileContentBytes);
+
+
+
 
                     }catch (IOException | SQLException error){
-                        System.out.println("The server is down!!!");
+                        System.out.println("");
                     }
                 }
             }
@@ -197,12 +239,13 @@ public class ClientUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ClientUI().setVisible(true);
+                try {
+                    new ClientUI().setVisible(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    // End of variables declaration//GEN-END:variables
 }

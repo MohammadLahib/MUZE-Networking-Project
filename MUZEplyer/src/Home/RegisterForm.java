@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Objects;
 import javax.swing.JFileChooser;
 
 /**
@@ -168,7 +169,7 @@ public class RegisterForm extends javax.swing.JFrame {
         jSeparator1.setForeground(new java.awt.Color(255, 255, 255));
         jSeparator1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255), 2));
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 3, 18)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Segue UI", Font.BOLD | Font.ITALIC, 18)); // NOI18N
         jLabel2.setText("CREATE YOUR ACCOUNT NOW");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -217,7 +218,7 @@ public class RegisterForm extends javax.swing.JFrame {
 
         jLabel9.setBackground(new java.awt.Color(153, 204, 255));
         jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Home/icon-upload-50.png"))); // NOI18N
+        jLabel9.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/Home/icon-upload-50.png")))); // NOI18N
 
         jPanel3.setBackground(new java.awt.Color(207, 245, 231));
 
@@ -239,15 +240,15 @@ public class RegisterForm extends javax.swing.JFrame {
         jLabel10.setForeground(new java.awt.Color(255, 255, 255));
         jLabel10.setText("Name");
 
-        jLabel12.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Segue UI", Font.BOLD, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setText("Email");
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel14.setFont(new java.awt.Font("Segue UI", Font.BOLD, 14)); // NOI18N
         jLabel14.setForeground(new java.awt.Color(255, 255, 255));
         jLabel14.setText("Username");
 
-        jLabel16.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel16.setFont(new java.awt.Font("Segue UI", 1, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
         jLabel16.setText("Password");
 
@@ -360,7 +361,7 @@ public class RegisterForm extends javax.swing.JFrame {
 
         jLabel18.setText("Not Provided Yet");
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel13.setFont(new java.awt.Font("Segue UI", Font.BOLD, 14)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(255, 255, 255));
         jLabel13.setText("Uploaded File:");
 
@@ -385,7 +386,7 @@ public class RegisterForm extends javax.swing.JFrame {
         jPanel8.setBackground(new java.awt.Color(207, 245, 231));
 
         jButton3.setBackground(new java.awt.Color(160, 228, 203));
-        jButton3.setFont(new java.awt.Font("Segoe UI", Font.BOLD, 24)); // NOI18N
+        jButton3.setFont(new java.awt.Font("Segue UI", Font.BOLD, 24)); // NOI18N
         jButton3.setText("Register");
         jButton3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -394,7 +395,7 @@ public class RegisterForm extends javax.swing.JFrame {
             }
         });
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", Font.PLAIN, 14)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Segue UI", Font.PLAIN, 14)); // NOI18N
         jLabel8.setText("Already have an account?");
 
         btnLogin.setBackground(new java.awt.Color(160, 228, 203));
@@ -513,6 +514,7 @@ public class RegisterForm extends javax.swing.JFrame {
     private void RemailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemailActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_RemailActionPerformed
+
     final File[] fileToSend = new File[1];
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
        //register button
@@ -564,9 +566,10 @@ public class RegisterForm extends javax.swing.JFrame {
                             pst.setString(4,password);
                             pst.execute();
                             
-                            pst1 = con.prepareStatement("insert into audio(fileName, filePath) values(?,?)");
+                            pst1 = con.prepareStatement("insert into audio(fileName,filePath, name) values(?,?,?)");
                             pst1.setString(1, fileName);
                             pst1.setString(2, filePath);
+                            pst1.setString(3, name);
 //                            pst1.setString(3,username);
                             pst1.execute();
                             System.out.println("User added successfully");
@@ -579,9 +582,6 @@ public class RegisterForm extends javax.swing.JFrame {
                             con.close();
                             
                         }
-                      
-                          
-                        
                     }
                     catch(Exception ex){
                         System.out.println("Exception" + ex);
